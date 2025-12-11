@@ -3,6 +3,9 @@
   --muted: #9ca3af;
   --accent: #ffffff;
   --card: rgba(255,255,255,0.03);
+  --page-padding: clamp(12px, 3vw, 24px);
+  --gap: clamp(0.25rem, 1.2vh, 0.75rem);
+  --max-image-width: min(80vw, 420px);
 }
 
 /* Minimalist, neutral typography */
@@ -16,8 +19,10 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--gap);
   min-height: 100vh;
+  padding: var(--page-padding);
+  box-sizing: border-box;
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background: var(--bg);
   color: var(--accent);
@@ -27,7 +32,7 @@ body {
 }
 
 h1,h2 {
-  font-size: 1.375rem;
+  font-size: clamp(1rem, 2.4vw, 1.375rem);
   font-weight: 600;
   margin: 0;
   color: var(--muted);
@@ -37,11 +42,11 @@ h1,h2 {
 #countdown {
   font-family: 'Space Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;
   font-weight: 400;
-  font-size: 3.5rem;
+  font-size: clamp(1.8rem, 9vw, 3.5rem);
   color: var(--accent);
   letter-spacing: 0.04em;
-  padding: 0.5rem 1rem;
-  border-radius: 10px;
+  padding: clamp(0.35rem, 1.2vw, 0.5rem) clamp(0.8rem, 2.5vw, 1rem);
+  border-radius: clamp(8px, 1.6vw, 10px);
   line-height: 1;
   background: var(--card);
   box-shadow: 0 10px 30px rgba(255,255,255,0.03);
@@ -50,8 +55,8 @@ h1,h2 {
 
 /* smaller on narrow screens */
 @media (max-width: 420px) {
-  h1 { font-size: 1.1rem; }
-  #countdown { font-size: 2.2rem; }
+  h1 { font-size: clamp(0.95rem, 3.4vw, 1.1rem); }
+  #countdown { font-size: clamp(1.4rem, 8vw, 2.2rem); }
 }
 
 /* subtle page depth */
@@ -81,24 +86,23 @@ body::before {
 
 /* make images smaller and responsive */
 img {
-  max-width: 320px;
+  max-width: var(--max-image-width);
   width: 100%;
   height: auto;
   display: block;
-  margin: 0.5rem auto 0;
-  padding-top: 50px;
+  margin: clamp(0.5rem, 2.5vh, 1.25rem) auto 0;
   border-radius: 8px;
 }
 
 /* footer */
 .site-footer {
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: clamp(0.75rem, 1.6vw, 0.95rem);
   position: fixed;
-  bottom: 12px;
+  bottom: clamp(8px, 2vh, 12px);
   left: 50%;
   transform: translateX(-50%);
   background: rgba(255,255,255,0.02);
-  padding: 6px 10px;
+  padding: clamp(4px, 1vh, 8px) clamp(8px, 2vw, 12px);
   border-radius: 999px;
 }
