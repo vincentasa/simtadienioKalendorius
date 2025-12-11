@@ -89,3 +89,16 @@ img {
   padding-top: 50px;
   border-radius: 8px;
 }
+
+/* footer */
+.site-footer {
+  color: var(--muted);
+  font-size: 0.9rem;
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255,255,255,0.02);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
