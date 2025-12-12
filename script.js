@@ -32,18 +32,22 @@ function updateCountdown() {
 updateCountdown();
 const interval = setInterval(updateCountdown, 1000);
 
-// --- Random sound playback support (gesture-driven, no visible button) ---
+// --- Random sound playback support (gesture-driven, WebAudio fallback) ---
 // Place a sound file at project root named `sound.mp3` or update `audioSrc` below.
-const audioSrc = 'sound/funny_sound.mp3';
+const audioSrc = 'sound.mp3';
 const audioEl = new Audio(audioSrc);
 audioEl.preload = 'auto';
 
 let soundEnabled = false; // becomes true after first user gesture
 let soundTimeout = null;
 
+// Web Audio API resources
+let audioCtx = null;
+let audioBuffer = null;
+
 // configurable interval bounds (ms) for random playback
 const minIntervalMs = 30 * 1000; // 30 seconds
-const maxIntervalMs = 60 * 2 * 1000; // 2 minutes
+const maxIntervalMs = 60 * 60 * 1000; // 1 hour
 
 function getRandomDelayMs() {
   return Math.floor(Math.random() * (maxIntervalMs - minIntervalMs)) + minIntervalMs;
@@ -53,46 +57,94 @@ function scheduleNextRandomPlay() {
   if (!soundEnabled) return;
   if (soundTimeout) clearTimeout(soundTimeout);
   const delay = getRandomDelayMs();
-  soundTimeout = setTimeout(() => {
-    playRandomSound();
-  }, delay);
+  // for quicker local testing, set a small delay manually here
+  soundTimeout = setTimeout(() => playRandomSound(), delay);
+}
+
+async function prepareWebAudio() {
+  if (audioCtx) return;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // fetch and decode the file
+    const resp = await fetch(audioSrc, { cache: 'no-store' });
+    if (!resp.ok) throw new Error('Fetch failed: ' + resp.status);
+    const arrayBuffer = await resp.arrayBuffer();
+    audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+  } catch (e) {
+    console.warn('WebAudio preparation failed:', e);
+    audioCtx = null;
+    audioBuffer = null;
+  }
+}
+
+function playViaWebAudio() {
+  if (!audioCtx || !audioBuffer) return false;
+  try {
+    const src = audioCtx.createBufferSource();
+    src.buffer = audioBuffer;
+    src.connect(audioCtx.destination);
+    src.start(0);
+    return true;
+  } catch (e) {
+    console.warn('WebAudio play failed:', e);
+    return false;
+  }
 }
 
 function playRandomSound() {
   if (!soundEnabled) return;
-  const p = audioEl.play();
-  if (p && typeof p.then === 'function') {
-    p.catch((err) => {
-      // Playback blocked — disable scheduling until next gesture
-      console.warn('Audio playback prevented or failed:', err);
-      soundEnabled = false;
-      if (soundTimeout) { clearTimeout(soundTimeout); soundTimeout = null; }
-    });
+  // Prefer WebAudio if prepared
+  if (audioCtx && audioBuffer) {
+    const ok = playViaWebAudio();
+    if (!ok) {
+      // fallback to HTMLAudio
+      const p = audioEl.play();
+      if (p && typeof p.then === 'function') p.catch((err) => console.warn('Fallback audio failed:', err));
+    }
+  } else {
+    // fallback to HTMLAudio element
+    const p = audioEl.play();
+    if (p && typeof p.then === 'function') {
+      p.catch((err) => {
+        console.warn('Audio playback prevented or failed:', err);
+        soundEnabled = false;
+        if (soundTimeout) { clearTimeout(soundTimeout); soundTimeout = null; }
+      });
+    }
   }
-  // schedule next one regardless (scheduleNextRandomPlay will only act if enabled)
+  // schedule next play
   scheduleNextRandomPlay();
 }
 
 // Enable sound after user performs an explicit gesture anywhere on the page.
-function enableSoundFromGesture() {
+async function enableSoundFromGesture() {
   if (soundEnabled) return;
   soundEnabled = true;
-  // Try a short immediate play to satisfy autoplay policy and reveal any errors early
-  // If the file is long, it's up to the user to provide a short clip.
-  const p = audioEl.play();
-  if (p && typeof p.then === 'function') {
-    p.then(() => {
-      // started — schedule next random play
-      scheduleNextRandomPlay();
-    }).catch((err) => {
-      console.warn('Audio play blocked on gesture:', err);
-      soundEnabled = false;
-    });
-  } else {
-    // synchronous play attempt (old browsers) — schedule next
-    scheduleNextRandomPlay();
+  // prepare WebAudio and try to resume context (some browsers start suspended)
+  await prepareWebAudio();
+  if (audioCtx && typeof audioCtx.resume === 'function') {
+    try { await audioCtx.resume(); } catch (e) { /* ignore */ }
   }
-  // remove the gesture listeners after enabling
+
+  // Try immediate play via WebAudio first, then fallback to audioEl
+  let played = false;
+  if (audioCtx && audioBuffer) {
+    played = playViaWebAudio();
+  }
+  if (!played) {
+    try {
+      const p = audioEl.play();
+      if (p && typeof p.then === 'function') {
+        await p;
+      }
+      played = true;
+    } catch (err) {
+      console.warn('Initial audio play blocked or failed on gesture:', err);
+      soundEnabled = false;
+    }
+  }
+
+  if (played) scheduleNextRandomPlay();
   removeGestureListeners();
 }
 
@@ -119,7 +171,10 @@ function wrappedUpdateCountdown() {
   if (targetDate - now <= 0) {
     // countdown ended: stop scheduled sound
     if (soundTimeout) { clearTimeout(soundTimeout); soundTimeout = null; }
-    try { audioEl.pause(); audioEl.currentTime = 0; } catch (e) { /* ignore */ }
+    try {
+      if (audioEl) { audioEl.pause(); audioEl.currentTime = 0; }
+      if (audioCtx) { audioCtx.suspend && audioCtx.suspend(); }
+    } catch (e) { /* ignore */ }
   }
 }
 
