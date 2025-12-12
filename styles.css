@@ -94,6 +94,10 @@ img {
   border-radius: 8px;
 }
 
+/* indicate the image is interactive */
+#surprise-img { cursor: pointer; }
+#surprise-img:focus { outline: 2px solid rgba(255,255,255,0.08); outline-offset: 4px; }
+
 /* footer */
 .site-footer {
   color: var(--muted);

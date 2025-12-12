@@ -163,6 +163,20 @@ window.addEventListener('pointerdown', gestureHandler, { once: true });
 window.addEventListener('keydown', gestureHandler, { once: true });
 window.addEventListener('touchstart', gestureHandler, { once: true });
 
+// Also make the main image a direct control: clicking or pressing Enter/Space on it enables and plays sound.
+const surpriseImg = document.getElementById('surprise-img');
+if (surpriseImg) {
+  surpriseImg.addEventListener('click', (e) => {
+    enableSoundFromGesture();
+  });
+  surpriseImg.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      enableSoundFromGesture();
+    }
+  });
+}
+
 // when the countdown finishes, stop any scheduled sound and pause audio
 const originalUpdateCountdown = updateCountdown;
 function wrappedUpdateCountdown() {
