@@ -31,6 +31,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: linear-gradient(180deg, var(--atlantic-deep) 0%, #023e5a 45%, var(--atlantic-mid) 100%);
+  padding-bottom: calc(var(--page-padding) + 56px);
 }
 
 /* subtle ocean texture via layered radial gradients */
@@ -98,22 +99,44 @@ img{
 /* Footer */
 .site-footer{
   color: var(--muted);
-  font-size: clamp(0.75rem, 1.6vw, 0.95rem);
+  font-size: clamp(0.9rem, 1.2vw, 0.9rem);
   position: fixed;
-  bottom: clamp(8px, 2vh, 12px);
+  bottom: clamp(10px, 3vh, 16px);
   left: 50%;
+  right: auto;
   transform: translateX(-50%);
   z-index: 1000;
-  width: max-content;
-  background: linear-gradient(90deg, rgba(3,31,46,0.24), rgba(3,46,60,0.12));
-  padding: clamp(6px, 1vh, 8px) clamp(10px, 2vw, 14px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: linear-gradient(90deg, rgba(3,31,46,0.22), rgba(3,46,60,0.10));
+  padding: 6px 10px;
   border-radius: 999px;
-  box-shadow: 0 6px 18px rgba(2,30,44,0.4);
+  width: min(70%, 220px);
+  max-width: 220px;
+  box-shadow: 0 4px 10px rgba(2,30,44,0.32);
+}
+
+@media (max-width: 420px) {
+  .site-footer{
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: calc(100% - 32px);
+    padding: 6px 10px;
+    box-sizing: border-box;
+  }
 }
 .site-footer a{ color: var(--muted); text-decoration: none; display: inline-block; }
 .site-footer a:hover, .site-footer a:focus{ text-decoration: underline; }
 .site-footer a{ cursor: pointer; }
+/* ensure anchor text matches footer size */
+.site-footer a{ font-size: inherit; }
+
+/* small spacing below paragraphs so fixed footer doesn't overlap text */
+p{ margin-bottom: 12px; }
 
 /* Ensure primary content sits above the wave */
-#countdown, h1, p, img, .site-footer{ position: relative; z-index: 2; }
+#countdown, h1, p, img { position: relative; z-index: 2; }
 
