@@ -1,31 +1,30 @@
-const targetDate = new Date("2026-06-01T00:00:00").getTime();
+const targetDate = new Date("2026-06-01T00:00:00").getTime(); // nustatoma data, iki kada skaiciuos
 const countdownEl = document.getElementById("countdown");
 
 function updateCountdown() {
   const now = new Date().getTime();
   const distance = targetDate - now;
 
+  //jei laikas baigesi
   if (distance <= 0) {
-    countdownEl.innerHTML = "🎉 It's June 1st, 2026! 🎉";
+    countdownEl.innerHTML = "🎉 Egzaminai prasidėjo! Sėkmės! 🎉";
     countdownEl.classList.add('pulse');
     clearInterval(interval);
     return;
   }
 
+  //cia boom boom skaiciavimai
   const days = Math.floor(distance / (1000 * 60 * 60 * 24));
   const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
+  //cia bbz ka daro 
   countdownEl.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-  // brief pulse to draw attention on update
   countdownEl.classList.remove('pulse');
-  // trigger reflow so animation can re-run reliably
-  // eslint-disable-next-line no-unused-expressions
   countdownEl.offsetWidth;
   countdownEl.classList.add('pulse');
 
-  // remove pulse class after animation completes
   setTimeout(() => countdownEl.classList.remove('pulse'), 420);
 }
 
@@ -33,7 +32,7 @@ updateCountdown();
 const interval = setInterval(updateCountdown, 1000);
 
 // --- Random sound playback support (gesture-driven, WebAudio fallback) ---
-// Place a sound file at project root named `sound.mp3` or update `audioSrc` below.
+
 const audioSrc = 'sound/funny_sound.mp3';
 const audioEl = new Audio(audioSrc);
 audioEl.preload = 'auto';
@@ -50,10 +49,14 @@ const minIntervalMs = 30 * 1000; // 30 seconds
 const maxIntervalMs = 60 * 2 * 1000; // 2 minutes
 
 function getRandomDelayMs() {
+  // Grąžina atsitiktinį vėlinimo dydį (ms) tarp `minIntervalMs` ir `maxIntervalMs`.
+  // Naudojama nustatyti, po kiek laiko bus paleistas kitas atsitiktinis garsas.
   return Math.floor(Math.random() * (maxIntervalMs - minIntervalMs)) + minIntervalMs;
 }
 
 function scheduleNextRandomPlay() {
+  // Suplanuoja kitą atsitiktinį garso paleidimą.
+  // Jei garsas neįjungtas arba jau yra suplanuotas timeout, nieko nedaro.
   if (!soundEnabled) return;
   if (soundTimeout) clearTimeout(soundTimeout);
   const delay = getRandomDelayMs();
@@ -69,6 +72,8 @@ async function prepareWebAudio() {
     const resp = await fetch(audioSrc, { cache: 'no-store' });
     if (!resp.ok) throw new Error('Fetch failed: ' + resp.status);
     const arrayBuffer = await resp.arrayBuffer();
+    // Paruošia Web Audio kontekstą ir nuskaito bei dekoduoja garso failą.
+    // Jei dekodavimas pavyksta, tas garso srautas bus saugomas `audioBuffer`.
     audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
   } catch (e) {
     console.warn('WebAudio preparation failed:', e);
@@ -84,6 +89,8 @@ function playViaWebAudio() {
     src.buffer = audioBuffer;
     src.connect(audioCtx.destination);
     src.start(0);
+    // Paleidžia garso buferį per Web Audio API.
+    // Grąžina `true`, jei reproducavimas pradėtas sėkmingai, kitaip `false`.
     return true;
   } catch (e) {
     console.warn('WebAudio play failed:', e);
@@ -114,6 +121,9 @@ function playRandomSound() {
   }
   // schedule next play
   scheduleNextRandomPlay();
+  // Vykdo vieną garso paleidimą: visų pirma bando WebAudio, o jei jis
+  // nepasiruošęs arba nepavyksta, krenta atgal į `HTMLAudio` elemento paleidimą.
+  // Po to suplanuoja kitą atsitiktinį paleidimą.
 }
 
 // Enable sound after user performs an explicit gesture anywhere on the page.
@@ -121,6 +131,9 @@ async function enableSoundFromGesture() {
   if (soundEnabled) return;
   soundEnabled = true;
   // prepare WebAudio and try to resume context (some browsers start suspended)
+  // Funkcija įjungiama po vartotojo gesto (pvz., paspaudimo ant nuotraukos).
+  // Ji paruošia garso sistemą (WebAudio arba HTMLAudio), bando nedelsiant paleisti garsą
+  // ir pradeda planuoti tolimesnius atsitiktinius paleidimus.
   await prepareWebAudio();
   if (audioCtx && typeof audioCtx.resume === 'function') {
     try { await audioCtx.resume(); } catch (e) { /* ignore */ }
