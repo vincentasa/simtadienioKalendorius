@@ -43,7 +43,7 @@ let soundTimeout = null;
 
 // configurable interval bounds (ms) for random playback
 const minIntervalMs = 30 * 1000; // 30 seconds
-const maxIntervalMs = 60 * 60 * 1000; // 1 hour
+const maxIntervalMs = 60 * 2 * 1000; // 2 minutes
 
 function getRandomDelayMs() {
   return Math.floor(Math.random() * (maxIntervalMs - minIntervalMs)) + minIntervalMs;
