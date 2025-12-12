@@ -1,20 +1,20 @@
 :root {
-  --bg: #000000;
-  --muted: #9ca3af;
-  --accent: #ffffff;
-  --card: rgba(255,255,255,0.03);
   --page-padding: clamp(12px, 3vw, 24px);
   --gap: clamp(0.25rem, 1.2vh, 0.75rem);
-  --max-image-width: min(100vh, 400px);
+  --max-image-width: min(100vh, 420px);
+
+  /* Atlantic palette */
+  --atlantic-deep: #001f3f; /* very deep navy */
+  --atlantic-mid: #0a6b88;  /* teal-blue */
+  --atlantic-surf: #3fb0ac; /* seafoam */
+  --atlantic-sand: #f3e9dc; /* warm light accent */
+  --muted: #9fcbd1;         /* muted text */
+  --accent: var(--atlantic-sand);
+  --card: rgba(255,255,255,0.03);
 }
 
-/* created: 30metistevas, Vincentas Šerėnas*/
-
-
-html, body {
-  height: 100%;
-}
-
+/* -- Layout -- */
+html, body { height: 100%; }
 body {
   margin: 0;
   display: flex;
@@ -26,94 +26,94 @@ body {
   padding: var(--page-padding);
   box-sizing: border-box;
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background: var(--bg);
   color: var(--accent);
   text-align: center;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(180deg, var(--atlantic-deep) 0%, #023e5a 45%, var(--atlantic-mid) 100%);
 }
 
-h1,h2,p {
+/* subtle ocean texture via layered radial gradients */
+body::before{
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(800px 200px at 10% 10%, rgba(255,255,255,0.02), transparent 10%),
+                    radial-gradient(600px 160px at 90% 90%, rgba(255,255,255,0.01), transparent 10%);
+  pointer-events: none;
+}
+
+h1,h2,p{
   font-size: clamp(1rem, 2.4vw, 1.375rem);
   font-weight: 600;
   margin: 0;
   color: var(--muted);
 }
 
-
-#countdown {
+/* Countdown card */
+#countdown{
   font-family: 'Space Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;
-  font-weight: 400;
-  font-size: clamp(1.8rem, 9vw, 3.5rem);
+  font-weight: 500;
+  font-size: clamp(1.8rem, 9vw, 3.2rem);
   color: var(--accent);
-  letter-spacing: 0.04em;
-  padding: clamp(0.35rem, 1.2vw, 0.5rem) clamp(0.8rem, 2.5vw, 1rem);
-  border-radius: clamp(8px, 1.6vw, 10px);
+  letter-spacing: 0.025em;
+  padding: clamp(0.45rem, 1.2vw, 0.6rem) clamp(0.9rem, 2.5vw, 1.1rem);
+  border-radius: 14px;
   line-height: 1;
-  background: var(--card);
-  box-shadow: 0 10px 30px rgba(255,255,255,0.03);
-  transition: transform 260ms cubic-bezier(.2,.9,.3,1), box-shadow 260ms ease, color 160ms ease;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  box-shadow: 0 12px 36px rgba(2,30,44,0.45), inset 0 -2px 8px rgba(255,255,255,0.02);
+  transition: transform 320ms cubic-bezier(.2,.9,.3,1), box-shadow 260ms ease, color 160ms ease;
 }
 
-/* smaller on narrow screens */
-@media (max-width: 420px) {
-  h1 { font-size: clamp(0.95rem, 3.4vw, 1.1rem); }
-  #countdown { font-size: clamp(1.4rem, 8vw, 2.2rem); }
+@media (max-width:420px){
+  h1{ font-size: clamp(0.95rem, 3.4vw, 1.1rem); }
+  #countdown{ font-size: clamp(1.4rem, 8vw, 2.2rem); }
 }
 
-/* subtle page depth */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(1200px 400px at 10% 10%, rgba(255,255,255,0.02), transparent 10%), radial-gradient(800px 300px at 90% 90%, rgba(255,255,255,0.01), transparent 10%);
-  pointer-events: none;
+/* Nautical pulse — gentler */
+.pulse{ animation: atlanticPulse 420ms cubic-bezier(.2,.9,.3,1); }
+@keyframes atlanticPulse{
+  0%{ transform: translateY(0) scale(1); box-shadow: 0 12px 36px rgba(2,30,44,0.45); }
+  35%{ transform: translateY(-6px) scale(1.02); box-shadow: 0 26px 64px rgba(2,46,68,0.55); }
+  100%{ transform: translateY(0) scale(1); box-shadow: 0 12px 36px rgba(2,30,44,0.45); }
 }
 
-/* pulse animation used when countdown updates */
-.pulse {
-  animation: pulseScale 360ms cubic-bezier(.2,.9,.3,1);
-}
+@media (prefers-reduced-motion: reduce){ #countdown, .pulse{ transition: none; animation: none; } }
 
-@keyframes pulseScale {
-  0% { transform: scale(1); box-shadow: 0 10px 30px rgba(255,255,255,0.03); }
-  30% { transform: scale(1.04); box-shadow: 0 18px 44px rgba(255,255,255,0.06); }
-  100% { transform: scale(1); box-shadow: 0 10px 30px rgba(255,255,255,0.03); }
-}
-
-/* respect user preference for reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  #countdown, .pulse { transition: none; animation: none; }
-}
-
-/* make images smaller and responsive */
-img {
+/* Image styling — framed like a polaroid on sea colors */
+img{
   max-width: var(--max-image-width);
   width: 100%;
   height: auto;
   display: block;
   margin: clamp(0.5rem, 2.5vh, 1.25rem) auto 0;
-  border-radius: 8px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(1,27,39,0.55);
+  border: 6px solid rgba(255,255,255,0.03);
 }
 
-/* indicate the image is interactive */
-#surprise-img { cursor: pointer; }
-#surprise-img:focus { outline: 2px solid rgba(255,255,255,0.08); outline-offset: 4px; }
+#surprise-img{ cursor: pointer; }
+#surprise-img:focus{ outline: 2px solid rgba(63,176,172,0.18); outline-offset: 6px; }
 
-/* footer */
-.site-footer {
+/* Footer */
+.site-footer{
   color: var(--muted);
   font-size: clamp(0.75rem, 1.6vw, 0.95rem);
   position: fixed;
   bottom: clamp(8px, 2vh, 12px);
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(255,255,255,0.02);
-  padding: clamp(4px, 1vh, 8px) clamp(8px, 2vw, 12px);
+  z-index: 1000;
+  width: max-content;
+  background: linear-gradient(90deg, rgba(3,31,46,0.24), rgba(3,46,60,0.12));
+  padding: clamp(6px, 1vh, 8px) clamp(10px, 2vw, 14px);
   border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(2,30,44,0.4);
 }
+.site-footer a{ color: var(--muted); text-decoration: none; display: inline-block; }
+.site-footer a:hover, .site-footer a:focus{ text-decoration: underline; }
+.site-footer a{ cursor: pointer; }
 
-.site-footer a { color: var(--muted); text-decoration: none; display: inline-block; }
-.site-footer a:hover, .site-footer a:focus { text-decoration: underline; }
-.site-footer a { cursor: pointer; }
+/* Ensure primary content sits above the wave */
+#countdown, h1, p, img { position: relative; z-index: 2; }
 
