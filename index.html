@@ -9,6 +9,18 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- Decorative background wave (keeps behind content) -->
+  <svg id="bg-wave" class="bg-wave" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="waveGrad" x1="0%" x2="100%" y1="0%" y2="0%">
+        <stop offset="0%" stop-color="#023e5a" stop-opacity="0.14"></stop>
+        <stop offset="100%" stop-color="#3fb0ac" stop-opacity="0.08"></stop>
+      </linearGradient>
+    </defs>
+    <!-- layered wave paths: back layer adds extra undulations for depth -->
+    <path class="wave wave--back" fill="url(#waveGrad)" d="M0,224L48,208C96,192,192,160,288,165.3C384,171,480,209,576,202.7C672,196,768,144,864,138.7C960,133,1056,171,1152,178.7C1248,187,1344,165,1392,154L1440,143L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+    <path class="wave wave--front" fill="url(#waveGrad)" d="M0,224L60,200C120,176,240,128,360,146.3C480,165,600,235,720,234.7C840,234,960,171,1080,160.3C1200,149,1320,189,1380,209L1440,229L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
+  </svg>
   <h1>Skaičiuojam 100 dienų iki egzaminų pradžios</h1>
   <div id="countdown">Loading...</div>
   <img id="surprise-img" tabindex="0" class="img-frame--medium" src="img/demotyvacija_krc.jpg" alt="Siurprizas">  <footer class="site-footer"><a id="site-footer-link" href="https://www.instagram.com/30metistevas/" target="_blank">made with ❤️ - 30metistevas</a></footer>
