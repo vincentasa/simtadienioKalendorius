@@ -11,16 +11,23 @@
   --muted: #9fcbd1;         /* muted text */
   --accent: var(--atlantic-sand);
   --card: rgba(255,255,255,0.03);
+  --footer-height: clamp(44px, 5vh, 56px);
+
+  /* Image frame variables: border width & radius scale with viewport */
+  --img-border-width: clamp(4px, 0.6vh, 10px);
+  --img-border-radius: clamp(8px, 1.2vh, 12px);
+
+  /* Image frame utility classes: .img-frame--thin | .img-frame--medium | .img-frame--thick */
+  /* Add these classes to an <img> element to override the default frame settings. */
 }
 
 /* -- Layout -- */
 html, body { height: 100%; }
 body {
   margin: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  /* Use grid to center while allowing content to flow/scroll when zoomed */
+  display: grid;
+  place-items: center;
   gap: var(--gap);
   min-height: 100vh;
   padding: var(--page-padding);
@@ -31,7 +38,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: linear-gradient(180deg, var(--atlantic-deep) 0%, #023e5a 45%, var(--atlantic-mid) 100%);
-  padding-bottom: calc(var(--page-padding) + 56px);
+  /* keep space for fixed footer, but allow page to scroll if content grows */
+  padding-bottom: calc(var(--page-padding) + var(--footer-height));
+  overflow-y: auto;
 }
 
 /* subtle ocean texture via layered radial gradients */
@@ -55,20 +64,36 @@ h1,h2,p{
 #countdown{
   font-family: 'Space Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;
   font-weight: 600;
-  font-size: clamp(1.8rem, 9vw, 3.2rem);
+  /* Prefer viewport-based sizing but limit extremes */
+  font-size: clamp(1.4rem, min(9vw, 12vh), 3.2rem);
   color: var(--accent);
   letter-spacing: 0.025em;
-  padding: clamp(0.45rem, 1.2vw, 0.6rem) clamp(0.9rem, 2.5vw, 1.1rem);
+  padding: clamp(0.35rem, 1vw, 0.6rem) clamp(0.75rem, 2vw, 1.1rem);
   border-radius: 14px;
   line-height: 1;
   background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
   box-shadow: 0 12px 36px rgba(2,30,44,0.45), inset 0 -2px 8px rgba(255,255,255,0.02);
   transition: transform 320ms cubic-bezier(.2,.9,.3,1), box-shadow 260ms ease, color 160ms ease;
-}
+  max-width: 96%;
+  /* don't overflow the viewport height (give room for header/footer). If the content must get smaller, font-size above will handle it */
+  max-height: calc(100vh - (var(--page-padding) * 2) - var(--footer-height) - 40px);
+  /* allow the card to shrink visually if view is constrained */
+  overflow-wrap: break-word;
+  word-break: break-word;
+} 
 
 @media (max-width:420px){
   h1{ font-size: clamp(0.95rem, 3.4vw, 1.1rem); }
   #countdown{ font-size: clamp(1.4rem, 8vw, 2.2rem); }
+}
+
+/* If the viewport height is tight (user zoomed vertically), scale down the countdown further */
+@media (max-height: 600px) {
+  #countdown{
+    font-size: clamp(1rem, min(8vw, 9vh), 2.4rem);
+    padding: clamp(0.25rem, 0.8vw, 0.4rem) clamp(0.6rem, 1.4vw, 0.8rem);
+    max-height: calc(100vh - (var(--page-padding) * 2) - var(--footer-height) - 10px);
+  }
 }
 
 /* Nautical pulse — gentler */
@@ -88,13 +113,15 @@ img{
   height: auto;
   display: block;
   margin: clamp(0.5rem, 2.5vh, 1.25rem) auto 0;
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(1,27,39,0.55);
-  border: 6px solid rgba(255,255,255,0.03);
+  /* Keep corner radius consistent even without a decorative border */
+  border: none;
+  box-sizing: border-box;
+  /* Prevent large images from pushing the countdown off-screen when zoomed */
+  max-height: calc(60vh);
+  object-fit: contain;
+  /* Keep tall/portrait images visually pleasing; allow image itself to shrink */
+  max-inline-size: 100%;
 }
-
-#surprise-img{ cursor: pointer; }
-#surprise-img:focus{ outline: 2px solid rgba(63,176,172,0.18); outline-offset: 6px; }
 
 /* Footer */
 .site-footer{
